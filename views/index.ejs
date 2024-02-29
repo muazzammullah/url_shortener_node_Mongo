@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title><%= appname %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+      rel="icon" 
+      type="image/png" 
+      href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png"
+    />
+      <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Custom fonts for this template -->
+    <link href="public/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="public/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link href="public/css/landing-page.min.css" rel="stylesheet">
+
+      <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+      <link href="/public/style.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body onload="checkvalid()">
+    <main>
+      <section class="box">
+        <p style="color: red"><b><%= error %></b></p>
+        <form action="/new" method="POST">
+          <fieldset>
+            <h1 class="display-3"><b>Slimm</b> | URL shortener</h1>
+            <br>
+             <p style="float: left;margin-left: 2.5%;">Enter Valid URL eg(apple.com or https://apple.com or https://www.apple.com)</p>
+            <div class="input-group mb-3 inputwithbutton">
+              <input type="text" class="form-control custominput" id="url" name="url" oninput="checkvalid()" placeholder="https://www.freecodecamp.org/" >
+              <div class="input-group-append">
+                <input type="submit"  id="submitbutton"  class="btn btn-outline-secondary custombutton"   value="Shorten It!" />
+              </div>
+            </div>
+            <br>
+            <div style="display:none">
+            <div class="input-group mb-3 inputwithbutton" >
+              <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon3">slimm.herokuapp.com/</span>
+              </div>
+              <input type="text" class="form-control custominput" name="custompath" id="custom_url" oninput="checkavailable()" placeholder="Custom Path:Optional" >
+            </div>
+           <p id="status"></p>
+         </div>
+
+          </fieldset>
+        </form>
+      </section>
+
+
+    </main>
+
+
+<script type="text/javascript">
+
+  function checkvalid(){
+    var url = document.getElementById("url").value;
+    if(url.length>4){
+      var isvalidurl= /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}(:[0-9]{1,5})?(\/.*)?$/g.test((url).toLowerCase());
+
+      if(isvalidurl==true){
+        document.getElementById("submitbutton").disabled =false;
+        console.log("is valid url")
+      }
+      else{
+        console.log("isnt valid url");
+        document.getElementById("submitbutton").disabled =true;
+      }
+    }
+    else if(url.length<=4){
+        document.getElementById("submitbutton").disabled =true;
+        console.log("isnt valid url");
+    }
+  }
+
+  function checkavailable(){
+    var x = document.getElementById("custom_url").value;
+    if(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}(:[0-9]{1,5})?(\/.*)?$/g.test((document.getElementById("url").value).toLowerCase())==true){
+        if(x.length>=4){
+          $.ajax({
+            type:'GET',
+            url:'/istaken/'+x,
+            success:function(returned_data){
+              console.log(returned_data.status);
+              if(returned_data.status=="n"){
+                document.getElementById("submitbutton").disabled =false;
+                document.getElementById("status").style.color = "lightgreen";
+                document.getElementById("status").innerHTML = "";
+              }
+              else if(returned_data.status=="y"){
+                document.getElementById("submitbutton").disabled =true;
+                document.getElementById("status").style.color = "red";
+                 document.getElementById("status").innerHTML = "❌Custom path taken";
+              }
+            }
+          });
+
+        }
+        else if(x.length<4){
+            if(x.length!=0){
+              document.getElementById("submitbutton").disabled =true;
+            }
+        }
+    }
+  }
+</script>
+
+  </body>
+</html>
